@@ -41,14 +41,26 @@
 
 using namespace std;
 
+struct datos_viento {
+	string direccion;
+	int velocidad;
+};
+
+struct datos_temp_humedad_sensacion {
+	int maxima, minima;
+	map<string, int> valor_por_horas;
+};
+
 map<string, Provincia> provincias;
 string nombre_provincia, nombre_localidad, codigo_provincia, codigo_localidad;
 map<string, Provincia>::iterator it_provincia;
 pair<map<string, Provincia>::iterator,bool> ret;
 int horas = 1;
 
-map<string, string> estados_cielo;
-string fecha, prob_precipitacion, tmp_valor, tmp_valor2;
+map<string, string> estados_cielo, prob_precipitacion;
+map<string, datos_viento> viento;
+datos_temp_humedad_sensacion temperaturas, sensaciones, humedades;
+string fecha, tmp_valor, tmp_valor2;
 bool leyendo_viento, leyendo_precip, leyendo_temp, leyendo_sens, leyendo_cielo, leyendo_humedad;
 
 void inicializar();
@@ -63,6 +75,7 @@ void imprimirProvincias();
 %s LEYENDO_LOCALIDADES
 
 %s FICHERO_PREDICCION
+%s N_PUEBLO_PREDICCION
 %s XXDIAXX
 %s DIA
 %s FECHA
@@ -83,7 +96,7 @@ void imprimirProvincias();
 empezar_array "["
 acabar_array "]"
 
-cualquier_nombre [^ \n<>.:]*
+cualquier_nombre [^ \n<>".:]*
 numero [0-9]
 id_localidad {numero}{3}
 id_provincia [0-5]{2}
@@ -93,8 +106,9 @@ label_id_provincia cprov
 label_nombre_provincia nombre_prov
 fin_archivo fin_archivo
 
+label_nombre nombre
 label_prob_precipitacion probPrecipitacion
-label_fecha "fecha"
+label_fecha fecha
 label_estado_cielo estadoCielo
 label_viento viento
 label_temperatura temperatura
@@ -147,6 +161,8 @@ label_humedad humedadRelativa
 {fin_archivo}									{ cout << "encontrado fin archivo\n"; BEGIN(INITIAL); }
 
 
+nombre { BEGIN(N_PUEBLO_PREDICCION); }
+<N_PUEBLO_PREDICCION>{cualquier_nombre} { nombre_localidad = yytext; cout << nombre_localidad << endl; BEGIN(FICHERO_PREDICCION); }
 
 <INITIAL,FICHERO_PREDICCION>{empezar_array}		{ BEGIN(XXDIAXX); }
 
@@ -186,13 +202,7 @@ label_humedad humedadRelativa
 			(strcmp(yytext, "18-24") == 0)) 
 				cout << "periodo: " << yytext << " | valor: " << tmp_valor << endl;
 
-	} else if (leyendo_sens) {
-		cout << "a las " << yytext << " la sensación es de ";
-	} else {
-		if (strcmp(yytext, "00-24") == 0) { 
-			cout << "periodo: " << yytext << " | valor: " << tmp_valor << endl; 
-		}
-	}
+	} 
 }
 
 {label_estado_cielo}							{ cout << "# " << yytext << " -> " << endl; BEGIN(ESTADO_CIELO); }
@@ -221,7 +231,7 @@ label_humedad humedadRelativa
 												}
 
 {label_sens_termica}|{label_humedad}			{ cout << endl << "# " << yytext << " -> "; horas = 1; BEGIN(TEMP_Y_SENS); }
-
+{fecha}	{ fecha = yytext; }
 
 
 .	{}
