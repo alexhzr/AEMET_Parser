@@ -5,24 +5,7 @@
  *  @date    30/11/17  
  *  @version 1.0 
  *  
- *  @brief CSC 112, Lab 1, sorts strings using insertion sort
- *
- *  @section DESCRIPTION
- *  
- *  This is a little program that reads a list of names from
- *  a specified file or from standard input and then sorts
- *  the names in ascending order and prints them to standard
- *  output.
- *  
- *  Command line arguments are used to specify where the
- *  list of names should be read from.  If the program
- *  doesn't receive any command line arguments then it reads
- *  the names from standard input. If the program receives
- *  a single command line argument then it reads the names
- *  from the corresponding file.  If more than one command
- *  line argument is specified the program prints a usage
- *  message and terminates.
- *
+ *  @brief Proyecto en Lex para Modelos de Computación - Universidad de Granada
  */
 
 %{
@@ -34,8 +17,6 @@
 #include <map>
 #include <iterator>
 
-#include "restclient-cpp/restclient.h"
-#include "restclient-cpp/connection.h"
 #include "localidad.h"
 #include "provincia.h"
 
@@ -51,15 +32,21 @@ struct datos_temp_humedad_sensacion {
 	map<string, int> valor_por_horas;
 };
 
+//Variables para la primera parte del programa (parseado de ficheros de localidades y provincias)
 map<string, Provincia> provincias;
 string nombre_provincia, nombre_localidad, codigo_provincia, codigo_localidad;
 map<string, Provincia>::iterator it_provincia;
 pair<map<string, Provincia>::iterator,bool> ret;
-int horas = 1;
 
-map<string, string> estados_cielo, prob_precipitacion;
+//Variables para la segunda parte del programa (parseado del fichero prevision.json)
+map<string, string> desc_estados_cielo;
+map<string, int> prob_precipitacion, estados_cielo;
 map<string, datos_viento> viento;
 datos_temp_humedad_sensacion temperaturas, sensaciones, humedades;
+int indice_uv;
+
+int horas = 1;
+datos_viento temp_datosviento;
 string fecha, tmp_valor, tmp_valor2;
 bool leyendo_viento, leyendo_precip, leyendo_temp, leyendo_sens, leyendo_cielo, leyendo_humedad;
 
@@ -115,7 +102,7 @@ label_temperatura temperatura
 fecha ([12]{numero}{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]{numero}|3[01]))
 periodo {numero}{2}-{numero}{2}
 valor {numero}+
-direccion_viento [C|N|NE|NO|S|SE|SO|E|O]
+direccion_viento C|N|NE|NO|S|SE|SO|E|O
 label_maxima maxima
 label_minima minima
 label_hora hora
@@ -184,7 +171,11 @@ nombre { BEGIN(N_PUEBLO_PREDICCION); }
 			strcmp(yytext, "06-12") == 0 ||
 			strcmp(yytext, "12-18") == 0 ||
 			strcmp(yytext, "18-24") == 0) { 
-			cout << "periodo: " << yytext << " | direccion: " << tmp_valor2 << " | velocidad: " << tmp_valor << endl; 
+			temp_datosviento.direccion = tmp_valor2;
+			temp_datosviento.velocidad = stoi(tmp_valor);
+
+			viento.insert(make_pair(yytext, temp_datosviento));
+			cout << "periodo: " << viento.find(yytext)->first << " | direccion: " << viento.find(yytext)->second.direccion << " | velocidad: " << viento.find(yytext)->second.velocidad << endl; 
 		}
 
 	} else if (leyendo_precip) {
@@ -193,14 +184,17 @@ nombre { BEGIN(N_PUEBLO_PREDICCION); }
 				strcmp(yytext, "06-12") == 0 ||
 				strcmp(yytext, "12-18") == 0 ||
 				strcmp(yytext, "18-24") == 0) {
-					cout << "periodo: " << yytext << " | valor: " << tmp_valor << endl; 
+					prob_precipitacion.insert(make_pair(yytext, stoi(tmp_valor)));
+					cout << "periodo: " << prob_precipitacion.find(yytext)->first << " | valor: " << prob_precipitacion.find(yytext)->second << endl; 
 				}
 	} else if (leyendo_cielo) {
 		if ((strcmp(yytext, "00-06") == 0) ||
 			(strcmp(yytext, "06-12") == 0) ||
 			(strcmp(yytext, "12-18") == 0) ||
-			(strcmp(yytext, "18-24") == 0)) 
-				cout << "periodo: " << yytext << " | valor: " << tmp_valor << endl;
+			(strcmp(yytext, "18-24") == 0)) {
+				estados_cielo.insert(make_pair(yytext, stoi(tmp_valor)));
+				cout << "periodo: " << estados_cielo.find(yytext)->first << " | valor: " << estados_cielo.find(yytext)->second << endl;
+			}
 
 	} 
 }
@@ -214,23 +208,64 @@ nombre { BEGIN(N_PUEBLO_PREDICCION); }
 <VIENTO>{empezar_array}							{ BEGIN(LEYENDO_ARRAY); }
 <LEYENDO_ARRAY>{direccion_viento}				{ tmp_valor2 = yytext; }
 
-{label_temperatura}								{ cout << "# " << yytext << " -> "; BEGIN(TEMP_Y_SENS); }
+{label_temperatura}								{ leyendo_temp = true; leyendo_humedad = leyendo_sens = false; cout << "# " << yytext << " -> "; BEGIN(TEMP_Y_SENS); }
 
 <TEMP_Y_SENS>{label_maxima}						{ cout << yytext << ": "; BEGIN(TEMP_MAXIMA); }
 <TEMP_Y_SENS>{label_minima}  					{ cout << yytext << ": "; BEGIN(TEMP_MINIMA); }
-<TEMP_MAXIMA>{valor}							{ cout << yytext << ", "; BEGIN(TEMP_Y_SENS); }
-<TEMP_MINIMA>{valor}							{ cout << yytext << endl; BEGIN(TEMP_XH); }
-<TEMP_XH>{valor}								{ tmp_valor = yytext; BEGIN(HORA); }
-<HORA>{valor}									{ 
-													if (horas <= 4) { 
-														cout << "a las " << yytext << "h hacen " << tmp_valor << "ºC" << endl; 
-														horas++;
-														BEGIN(TEMP_XH); 
-													} else 
-														BEGIN(INITIAL);
-												}
 
-{label_sens_termica}|{label_humedad}			{ cout << endl << "# " << yytext << " -> "; horas = 1; BEGIN(TEMP_Y_SENS); }
+<TEMP_MAXIMA>{valor} { 
+	if (leyendo_temp) {
+		temperaturas.maxima = stoi(yytext);
+		cout << temperaturas.maxima << ", ";	
+	} else if (leyendo_sens) {
+		sensaciones.maxima = stoi(yytext);
+		cout << sensaciones.maxima << ", ";
+	} else if (leyendo_humedad) {
+		humedades.maxima = stoi(yytext);
+		cout << humedades.maxima << ", ";
+	}	
+
+	 BEGIN(TEMP_Y_SENS); 
+}
+<TEMP_MINIMA>{valor} { 
+	if (leyendo_temp) {
+		temperaturas.minima = stoi(yytext);
+		cout << temperaturas.minima << ", " << endl;	
+	} else if (leyendo_sens) {
+		sensaciones.minima = stoi(yytext);
+		cout << sensaciones.minima << ", " << endl;
+	} else if (leyendo_humedad) {
+		humedades.minima = stoi(yytext);
+		cout << humedades.minima << ", " << endl;
+	}
+
+	BEGIN(TEMP_XH); 
+}
+
+<TEMP_XH>{valor}	{ tmp_valor = yytext; BEGIN(HORA); }
+<HORA>{valor} { 
+	if (horas <= 4) {
+		if (leyendo_temp) {
+			temperaturas.valor_por_horas.insert(make_pair(yytext, stoi(tmp_valor)));
+			cout << "a las " << temperaturas.valor_por_horas.find(yytext)->first << "h hacen " << temperaturas.valor_por_horas.find(yytext)->second << "ºC" << endl;
+		} else if (leyendo_sens) {
+			sensaciones.valor_por_horas.insert(make_pair(yytext, stoi(tmp_valor)));
+			cout << "a las " << sensaciones.valor_por_horas.find(yytext)->first << "h hacen " << sensaciones.valor_por_horas.find(yytext)->second << "ºC" << endl;
+
+		} else if (leyendo_humedad) {
+			humedades.valor_por_horas.insert(make_pair(yytext, stoi(tmp_valor)));
+			cout << "a las " << humedades.valor_por_horas.find(yytext)->first << "h la humedad será del " << humedades.valor_por_horas.find(yytext)->second << "%" << endl;
+		}
+
+		horas++;
+		BEGIN(TEMP_XH);
+	} else
+		BEGIN(INITIAL);
+
+}
+
+{label_sens_termica}			{ leyendo_sens = true; leyendo_temp = leyendo_humedad = false; cout << endl << "# " << yytext << " -> "; horas = 1; BEGIN(TEMP_Y_SENS); }
+{label_humedad}	{ leyendo_humedad = true; leyendo_sens = leyendo_temp = false; cout << endl << "# " << yytext << " -> "; horas = 1; BEGIN(TEMP_Y_SENS);}
 {fecha}	{ fecha = yytext; }
 
 
@@ -301,26 +336,26 @@ int main(int argc, char *argv[]) {
 }
 
 void inicializar() {
-	estados_cielo.insert(make_pair("11", "Despejado"));
-	estados_cielo.insert(make_pair("12", "Poco Nubloso"));
-	estados_cielo.insert(make_pair("13", "Intervalos Nublosos"));
-	estados_cielo.insert(make_pair("14", "Nubloso"));
-	estados_cielo.insert(make_pair("15", "Muy Nubloso"));
-	estados_cielo.insert(make_pair("16", "Cubierto"));
-	estados_cielo.insert(make_pair("17", "Nubes Altas"));
-	estados_cielo.insert(make_pair("18", "Intervalos nublosos con lluvia"));
-	estados_cielo.insert(make_pair("19", "Nubloso con lluvia"));
-	estados_cielo.insert(make_pair("20", "Muy nubloso con lluvia"));
-	estados_cielo.insert(make_pair("21", "Cubierto con lluvia"));
-	estados_cielo.insert(make_pair("22", "Intervalos nublosos con nieve"));
-	estados_cielo.insert(make_pair("23", "Nubloso con nieve"));
-	estados_cielo.insert(make_pair("24", "Muy nubloso con nieve"));
-	estados_cielo.insert(make_pair("25", "Chubascos"));
-	estados_cielo.insert(make_pair("26", "Tormenta"));
-	estados_cielo.insert(make_pair("27", "Granizo"));
-	estados_cielo.insert(make_pair("28", "Bruma"));
-	estados_cielo.insert(make_pair("29", "Niebla"));
-	estados_cielo.insert(make_pair("30", "Calma"));
+	desc_estados_cielo.insert(make_pair("11", "Despejado"));
+	desc_estados_cielo.insert(make_pair("12", "Poco Nubloso"));
+	desc_estados_cielo.insert(make_pair("13", "Intervalos Nublosos"));
+	desc_estados_cielo.insert(make_pair("14", "Nubloso"));
+	desc_estados_cielo.insert(make_pair("15", "Muy Nubloso"));
+	desc_estados_cielo.insert(make_pair("16", "Cubierto"));
+	desc_estados_cielo.insert(make_pair("17", "Nubes Altas"));
+	desc_estados_cielo.insert(make_pair("18", "Intervalos nublosos con lluvia"));
+	desc_estados_cielo.insert(make_pair("19", "Nubloso con lluvia"));
+	desc_estados_cielo.insert(make_pair("20", "Muy nubloso con lluvia"));
+	desc_estados_cielo.insert(make_pair("21", "Cubierto con lluvia"));
+	desc_estados_cielo.insert(make_pair("22", "Intervalos nublosos con nieve"));
+	desc_estados_cielo.insert(make_pair("23", "Nubloso con nieve"));
+	desc_estados_cielo.insert(make_pair("24", "Muy nubloso con nieve"));
+	desc_estados_cielo.insert(make_pair("25", "Chubascos"));
+	desc_estados_cielo.insert(make_pair("26", "Tormenta"));
+	desc_estados_cielo.insert(make_pair("27", "Granizo"));
+	desc_estados_cielo.insert(make_pair("28", "Bruma"));
+	desc_estados_cielo.insert(make_pair("29", "Niebla"));
+	desc_estados_cielo.insert(make_pair("30", "Calma"));
 }
 
 void imprimirListado(string c_prov) {

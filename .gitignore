@@ -1,6 +1,7 @@
 #
 ff/
 lex.yy.c
+prediccion
 
 # Compiled Object files
 *.slo

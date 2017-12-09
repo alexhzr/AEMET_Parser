@@ -13,25 +13,25 @@
   "prediccion" : {
     "dia" : [ {
       "probPrecipitacion" : [ {
-        "value" : 0,
+        "value" : 15,
         "periodo" : "00-24"
       }, {
-        "value" : 0,
+        "value" : 2,
         "periodo" : "00-12"
       }, {
-        "value" : 0,
+        "value" : 7,
         "periodo" : "12-24"
       }, {
-        "value" : 0,
+        "value" : 12,
         "periodo" : "00-06"
       }, {
-        "value" : 0,
+        "value" : 23,
         "periodo" : "06-12"
       }, {
-        "value" : 0,
+        "value" : 1,
         "periodo" : "12-18"
       }, {
-        "value" : 0,
+        "value" : 23,
         "periodo" : "18-24"
       } ],
       "cotaNieveProv" : [ {
@@ -102,7 +102,7 @@
         "velocidad" : 0,
         "periodo" : "00-06"
       }, {
-        "direccion" : "S",
+        "direccion" : "SO",
         "velocidad" : 10,
         "periodo" : "06-12"
       }, {
