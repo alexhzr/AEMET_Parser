@@ -1,0 +1,196 @@
+[ {
+  "origen" : {
+    "productor" : "Agencia Estatal de Meteorolog?a - AEMET. Gobierno de Espa?a",
+    "web" : "http://www.aemet.es",
+    "enlace" : "http://www.aemet.es/es/eltiempo/prediccion/municipios/albunuelas-id18007",
+    "language" : "es",
+    "copyright" : "© AEMET. Autorizado el uso de la informaci?n y su reproducci?n citando a AEMET como autora de la misma.",
+    "notaLegal" : "http://www.aemet.es/es/nota_legal"
+  },
+  "elaborado" : "2017-12-04",
+  "nombre" : "Albu?uelas",
+  "provincia" : "Granada",
+  "prediccion" : {
+    "dia" : [ {
+      "probPrecipitacion" : [ {
+        "value" : 0,
+        "periodo" : "00-24"
+      }, {
+        "value" : 0,
+        "periodo" : "00-12"
+      }, {
+        "value" : 0,
+        "periodo" : "12-24"
+      }, {
+        "value" : 0,
+        "periodo" : "00-06"
+      }, {
+        "value" : 0,
+        "periodo" : "06-12"
+      }, {
+        "value" : 0,
+        "periodo" : "12-18"
+      }, {
+        "value" : 0,
+        "periodo" : "18-24"
+      } ],
+      "cotaNieveProv" : [ {
+        "value" : 0,
+        "periodo" : "00-24"
+      }, {
+        "value" : 0,
+        "periodo" : "00-12"
+      }, {
+        "value" : 0,
+        "periodo" : "12-24"
+      }, {
+        "value" : 0,
+        "periodo" : "00-06"
+      }, {
+        "value" : 0,
+        "periodo" : "06-12"
+      }, {
+        "value" : 0,
+        "periodo" : "12-18"
+      }, {
+        "value" : 0,
+        "periodo" : "18-24"
+      } ],
+      "estadoCielo" : [ {
+        "value" : 0,
+        "periodo" : "00-24",
+        "descripcion" : 0
+      }, {
+        "value" : 0,
+        "periodo" : "00-12",
+        "descripcion" : 0
+      }, {
+        "value" : "11",
+        "periodo" : "12-24",
+        "descripcion" : "Despejado"
+      }, {
+        "value" : 0,
+        "periodo" : "00-06",
+        "descripcion" : 0
+      }, {
+        "value" : "11",
+        "periodo" : "06-12",
+        "descripcion" : "Despejado"
+      }, {
+        "value" : "11",
+        "periodo" : "12-18",
+        "descripcion" : "Despejado"
+      }, {
+        "value" : "11n",
+        "periodo" : "18-24",
+        "descripcion" : "Despejado"
+      } ],
+      "viento" : [ {
+        "direccion" : "C",
+        "velocidad" : 0,
+        "periodo" : "00-24"
+      }, {
+        "direccion" : "C",
+        "velocidad" : 0,
+        "periodo" : "00-12"
+      }, {
+        "direccion" : "S",
+        "velocidad" : 10,
+        "periodo" : "12-24"
+      }, {
+        "direccion" : "C",
+        "velocidad" : 0,
+        "periodo" : "00-06"
+      }, {
+        "direccion" : "S",
+        "velocidad" : 10,
+        "periodo" : "06-12"
+      }, {
+        "direccion" : "C",
+        "velocidad" : 0,
+        "periodo" : "12-18"
+      }, {
+        "direccion" : "S",
+        "velocidad" : 5,
+        "periodo" : "18-24"
+      } ],
+      "rachaMax" : [ {
+        "value" : 0,
+        "periodo" : "00-24"
+      }, {
+        "value" : 0,
+        "periodo" : "00-12"
+      }, {
+        "value" : 0,
+        "periodo" : "12-24"
+      }, {
+        "value" : 0,
+        "periodo" : "00-06"
+      }, {
+        "value" : 0,
+        "periodo" : "06-12"
+      }, {
+        "value" : 0,
+        "periodo" : "12-18"
+      }, {
+        "value" : 0,
+        "periodo" : "18-24"
+      } ],
+      "temperatura" : {
+        "maxima" : 10,
+        "minima" : 1,
+        "dato" : [ {
+          "value" : 2,
+          "hora" : 6
+        }, {
+          "value" : 9,
+          "hora" : 12
+        }, {
+          "value" : 4,
+          "hora" : 18
+        }, {
+          "value" : 3,
+          "hora" : 24
+        } ]
+      },
+      "sensTermica" : {
+        "maxima" : 10,
+        "minima" : 1,
+        "dato" : [ {
+          "value" : 2,
+          "hora" : 6
+        }, {
+          "value" : 7,
+          "hora" : 12
+        }, {
+          "value" : 4,
+          "hora" : 18
+        }, {
+          "value" : 3,
+          "hora" : 24
+        } ]
+      },
+      "humedadRelativa" : {
+        "maxima" : 70,
+        "minima" : 25,
+        "dato" : [ {
+          "value" : 55,
+          "hora" : 6
+        }, {
+          "value" : 30,
+          "hora" : 12
+        }, {
+          "value" : 65,
+          "hora" : 18
+        }, {
+          "value" : 65,
+          "hora" : 24
+        } ]
+      },
+      "uvMax" : 2,
+      "fecha" : "2017-12-04"
+    }]
+  },
+  "id" : 18007,
+  "version" : 1.0
+} ]

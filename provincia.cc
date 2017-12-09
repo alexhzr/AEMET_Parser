@@ -20,7 +20,7 @@ void Provincia::imprimirLocalidades() {
 	map<string, Localidad>::iterator it = localidades.begin();
 
 	for (it; it != localidades.end(); ++it) {
-		cout << "\t" << it->first << " - " << it->second.nombre << endl;
+		cout << it->first << " - " << it->second.nombre << endl;
 	}
 
 }

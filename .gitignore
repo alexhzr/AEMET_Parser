@@ -1,5 +1,6 @@
 #
 ff/
+lex.yy.c
 
 # Compiled Object files
 *.slo
