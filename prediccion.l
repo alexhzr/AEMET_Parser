@@ -55,6 +55,8 @@ bool leyendo_viento, leyendo_precip, leyendo_temp, leyendo_sens, leyendo_cielo, 
 void inicializar();
 void imprimirListado(string c_prov);
 void imprimirProvincias();
+string obtener_mes(string mes);
+
 %}
 
 %s NOMBRE_LOCALIDAD
@@ -291,7 +293,7 @@ int main(int argc, char *argv[]) {
 	string prov_selecc;
 	int c_prov;
 
-	/*do {
+	do {
 		cout << string(50, '\n');
 		imprimirProvincias();
 		cout << "\nIntroduzca el código de la provincia: ";
@@ -305,7 +307,7 @@ int main(int argc, char *argv[]) {
 		cout << "\nIntroduzca el código de la localidad: ";
 		cin >> prov_selecc;
 		c_prov = stoi(prov_selecc);
-	} while (false);*/
+	} while (false);
 
 	//===========================================================
 	//				PARSEAR FICHERO PREDICCIÓN
@@ -358,7 +360,7 @@ int main(int argc, char *argv[]) {
 	fprintf(yyout, "<header class='bg-primary text-white'>\n" );
 	fprintf(yyout, "<div class='container text-center'>\n" );
 	fprintf(yyout, "<h1>El tiempo en %s</h1>\n", nombre_localidad.c_str());
-	fprintf(yyout, "<h2>El día %s</h2>\n", fecha.c_str());
+	fprintf(yyout, "<h2>%s de %s del %s</h2>\n", fecha.substr(8, 2).c_str(), obtener_mes(fecha.substr(5, 2)).c_str(), fecha.substr(0, 4).c_str());
 	fprintf(yyout, "</div>\n" );
 	fprintf(yyout, "</header>\n" );
 	fprintf(yyout, "<section id='about'>\n" );
@@ -431,7 +433,7 @@ int main(int argc, char *argv[]) {
 	fprintf(yyout, "<div class='city-selected' style='background-color: #007bff;'>\n" );
 	fprintf(yyout, "<article>\n" );
 	fprintf(yyout, "<div class='info'>\n" );
-	fprintf(yyout, "<div><h2> Humedades</h2></div>\n" );
+	fprintf(yyout, "<div><h2> Humedad relativa</h2></div>\n" );
 	fprintf(yyout, "<div><h3>Máxima: %i %</h3></div>\n", humedades.maxima );
 	fprintf(yyout, "<div><h3>Mínima: %i %</h3></div>\n", humedades.minima );
 	fprintf(yyout, "</div>\n" );
@@ -449,7 +451,7 @@ int main(int argc, char *argv[]) {
 	fprintf(yyout, "<div class='city-selected' style='background-color: #17a2b8;'>\n" );
 	fprintf(yyout, "<article>\n" );
 	fprintf(yyout, "<div class='info'>\n" );
-	fprintf(yyout, "<div><h2> Sen. Térmica</h2></div>\n" );
+	fprintf(yyout, "<div><h2> Sensación térmica</h2></div>\n" );
 	fprintf(yyout, "<div><h3>Máxima: %i ºC</h3></div>\n", sensaciones.maxima);
 	fprintf(yyout, "<div><h3>Mínima: %i ºC</h3></div>\n", sensaciones.minima);
 	fprintf(yyout, "</div>\n" );
@@ -564,4 +566,24 @@ void imprimirProvincias() {
 	for (it_provincia; it_provincia != provincias.end(); ++it_provincia) {
 		cout << it_provincia->second.codigo << " - " << it_provincia->second.nombre << endl;
 	}
+}
+
+string obtener_mes(string mes) {
+	map<string, string> meses;
+
+	meses.insert(make_pair("01", "enero"));
+	meses.insert(make_pair("02", "febrero"));
+	meses.insert(make_pair("03", "marzo"));
+	meses.insert(make_pair("04", "abril"));
+	meses.insert(make_pair("05", "mayo"));
+	meses.insert(make_pair("06", "junio"));
+	meses.insert(make_pair("07", "julio"));
+	meses.insert(make_pair("08", "agosto"));
+	meses.insert(make_pair("09", "septiembre"));
+	meses.insert(make_pair("10", "octubre"));
+	meses.insert(make_pair("11", "noviembre"));
+	meses.insert(make_pair("12", "diciembre"));
+
+	cout << meses.find(mes)->second << endl;
+	return meses.find(mes)->second;
 }
