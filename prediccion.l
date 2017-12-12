@@ -14,6 +14,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
 #include <map>
 #include <iterator>
 
@@ -39,9 +40,10 @@ map<string, Provincia>::iterator it_provincia;
 pair<map<string, Provincia>::iterator,bool> ret;
 
 //Variables para la segunda parte del programa (parseado del fichero prevision.json)
-map<string, string> desc_estados_cielo;
+map<int, string> desc_estados_cielo;
 map<string, int> prob_precipitacion, estados_cielo;
 map<string, datos_viento> viento;
+map<string, string> desc_direcc_viento;
 datos_temp_humedad_sensacion temperaturas, sensaciones, humedades;
 int indice_uv;
 
@@ -283,7 +285,7 @@ int main(int argc, char *argv[]) {
 		printf("El fichero %s no se puede abrir\n", argv[1]);
 		exit(-1);
 	}
-
+	inicializar();
 	yylex();
 
 	string prov_selecc;
@@ -331,31 +333,224 @@ int main(int argc, char *argv[]) {
 	cout << "\nantes\n";
 	cout << r.body;
 	cout << "\ndespues\n";*/
+	
+	/* GENERO EL HTML */
+	yyin=stdin;
+	yyout= fopen("index.html","w");
+	fprintf(yyout, "<!DOCTYPE html>\n" );
+	fprintf(yyout, "<html lang='en'>\n" );
+	fprintf(yyout, "<head>\n" );
+	fprintf(yyout, "<meta charset='utf-8'>\n" );
+	fprintf(yyout, "<meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>\n" );
+	fprintf(yyout, "<meta name='description' content=''>\n" );
+	fprintf(yyout, "<meta name='author' content=''>\n" );
+	fprintf(yyout, "<title>El Tiempo Detallado</title>\n" );
+	fprintf(yyout, "<link href='html/vendor/bootstrap/css/bootstrap.min.css' rel='stylesheet'>\n" );
+	fprintf(yyout, "<link href='html/css/scrolling-nav.css' rel='stylesheet'>\n" );
+	fprintf(yyout, "<link href='html/css/style.css' rel='stylesheet'>\n" );
+	fprintf(yyout, "</head>\n" );
+	fprintf(yyout, "<body id='page-top'>\n" );
+	fprintf(yyout, "<nav class='navbar navbar-expand-lg navbar-dark bg-dark fixed-top' id='mainNav'>\n" );
+	fprintf(yyout, "<div class='container'>\n" );
+	fprintf(yyout, "<a class='navbar-brand js-scroll-trigger' href='#page-top'>El Tiempo Detallado</a>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</nav>\n" );
+	fprintf(yyout, "<header class='bg-primary text-white'>\n" );
+	fprintf(yyout, "<div class='container text-center'>\n" );
+	fprintf(yyout, "<h1>El tiempo en %s</h1>\n", nombre_localidad.c_str());
+	fprintf(yyout, "<h2>El día %s</h2>\n", fecha.c_str());
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</header>\n" );
+	fprintf(yyout, "<section id='about'>\n" );
+	fprintf(yyout, "<div class='container'>\n" );
+	fprintf(yyout, "<div class='row'>\n" );
+	fprintf(yyout, "<div class='col-lg-14 mx-auto'>\n" );
+	fprintf(yyout, "<table class='table table-responsive'>\n" );
+	fprintf(yyout, "<tr>\n" );
+	fprintf(yyout, "<th>06:00 H</th>\n" );
+	fprintf(yyout, "<th>12:00 H</th>\n" );
+	fprintf(yyout, "<th>18:00 H</th>\n" );
+	fprintf(yyout, "<th>00:00 H</th>\n" );
+	fprintf(yyout, "</tr>\n" );
 
+	fprintf(yyout, "<tr>\n" );
+	fprintf(yyout, "<td>%i ºC</td>\n", temperaturas.valor_por_horas.find("6")->second );
+	fprintf(yyout, "<td>%i ºC</td>\n", temperaturas.valor_por_horas.find("12")->second );
+	fprintf(yyout, "<td>%i ºC</td>\n", temperaturas.valor_por_horas.find("18")->second );
+	fprintf(yyout, "<td>%i ºC</td>\n", temperaturas.valor_por_horas.find("24")->second );
+	fprintf(yyout, "</tr>\n" );
+	fprintf(yyout, "<td><img src='icon/%s.svg' width='150' height='150'></td>\n", desc_estados_cielo.find( estados_cielo.find("00-06")->second)->second.c_str() );
+	fprintf(yyout, "<td><img src='icon/%s.svg' width='150' height='150'></td>\n", desc_estados_cielo.find( estados_cielo.find("06-12")->second)->second.c_str() );
+	fprintf(yyout, "<td><img src='icon/%s.svg' width='150' height='150'></td>\n", desc_estados_cielo.find( estados_cielo.find("12-18")->second)->second.c_str() );
+	fprintf(yyout, "<td><img src='icon/%s.svg' width='150' height='150'></td>\n", desc_estados_cielo.find( estados_cielo.find("18-24")->second)->second.c_str() );
+	fprintf(yyout, "</tr>\n" );
+
+	cout << "BIEN ESTADOS" << endl;
+
+	fprintf(yyout, "<tr>\n" );
+	fprintf(yyout, "<td><img src='icon_viento/%s.png' width='20' height='20'> %i km/h   <img src='icon/pro_lluvia.png' width='20' height='20'> %i %</td>\n",desc_direcc_viento.find(viento.find("00-06")->second.direccion.c_str())->second.c_str() , viento.find("00-06")->second.velocidad, prob_precipitacion.find("00-06")->second );
+	fprintf(yyout, "<td><img src='icon_viento/%s.png' width='20' height='20'> %i km/h   <img src='icon/pro_lluvia.png' width='20' height='20'> %i %</td>\n",desc_direcc_viento.find(viento.find("06-12")->second.direccion.c_str())->second.c_str() , viento.find("06-12")->second.velocidad, prob_precipitacion.find("06-12")->second );
+	fprintf(yyout, "<td><img src='icon_viento/%s.png' width='20' height='20'> %i km/h   <img src='icon/pro_lluvia.png' width='20' height='20'> %i %</td>\n",desc_direcc_viento.find(viento.find("12-18")->second.direccion.c_str())->second.c_str() , viento.find("12-18")->second.velocidad, prob_precipitacion.find("12-18")->second );
+	fprintf(yyout, "<td><img src='icon_viento/%s.png' width='20' height='20'> %i km/h   <img src='icon/pro_lluvia.png' width='20' height='20'> %i %</td>\n",desc_direcc_viento.find(viento.find("18-24")->second.direccion.c_str())->second.c_str() , viento.find("18-24")->second.velocidad, prob_precipitacion.find("18-24")->second );
+	fprintf(yyout, "</tr>\n" );
+
+	cout << "BIEN VIENTO, DIRECCION, VELOCIDAD, PRECIPITACION" << endl;
+
+	fprintf(yyout, "<tr>\n" );
+	fprintf(yyout, "<td><img src='icon/sen_termica.png' width='20' height='20'> %i ºC <img src='icon/humedad.png' width='20' height='20'> %i %</td>\n",sensaciones.valor_por_horas.find("6")->second ,humedades.valor_por_horas.find("6")->second );
+	fprintf(yyout, "<td><img src='icon/sen_termica.png' width='20' height='20'> %i ºC <img src='icon/humedad.png' width='20' height='20'> %i %</td>\n",sensaciones.valor_por_horas.find("12")->second ,humedades.valor_por_horas.find("12")->second );
+	fprintf(yyout, "<td><img src='icon/sen_termica.png' width='20' height='20'> %i ºC <img src='icon/humedad.png' width='20' height='20'> %i %</td>\n",sensaciones.valor_por_horas.find("18")->second ,humedades.valor_por_horas.find("18")->second );
+	fprintf(yyout, "<td><img src='icon/sen_termica.png' width='20' height='20'> %i ºC <img src='icon/humedad.png' width='20' height='20'> %i %</td>\n",sensaciones.valor_por_horas.find("24")->second ,humedades.valor_por_horas.find("24")->second );
+	fprintf(yyout, "</tr>\n" );
+
+	cout << "BIEN SENSACIONES TER, HUMEDADES" << endl;
+
+	/*fprintf(yyout, "<tr>\n" );
+	fprintf(yyout, "<th> Humedad</th>\n" );
+	fprintf(yyout, "</tr>\n" );
+	fprintf(yyout, "<tr>\n" );
+	fprintf(yyout, "<td><img src='icon/humedad.png' width='100' height='100'></td>\n" );
+	fprintf(yyout, "<td>Máxima:%i % </br>Mínima:%i %</td>\n",humedades.maxima, humedades.minima );
+	fprintf(yyout, "</tr>\n" );
+	fprintf(yyout, "<td>ST.MAX:%i ST.MIN:%i</td>\n",sensaciones.maxima  ,sensaciones.minima );
+	fprintf(yyout, "<tr>\n" );
+
+	fprintf(yyout, "<tr>\n" );
+	fprintf(yyout, "<td>TEMP.MAX:%i TEMP.MIN:%i</td>\n",temperaturas.maxima, temperaturas.minima );
+	fprintf(yyout, "<tr>\n" );*/
+
+	fprintf(yyout, "</table>\n" );
+	fprintf(yyout, "</div>\n" );
+
+	fprintf(yyout, "<div class='container' aling='center'>\n" );
+	fprintf(yyout, "<div class='row'>\n" );
+	fprintf(yyout, "<div class='col-sm-2'>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "<div class='col-sm-4'>\n" );
+	fprintf(yyout, "<div id='card' class='weater'>\n" );
+	fprintf(yyout, "<div class='city-selected' style='background-color: #007bff;'>\n" );
+	fprintf(yyout, "<article>\n" );
+	fprintf(yyout, "<div class='info'>\n" );
+	fprintf(yyout, "<div><h2> Humedades</h2></div>\n" );
+	fprintf(yyout, "<div><h3>Máxima: %i %</h3></div>\n", humedades.maxima );
+	fprintf(yyout, "<div><h3>Mínima: %i %</h3></div>\n", humedades.minima );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "<div class='icon'>\n" );
+    fprintf(yyout, "<img src='icon/h_max_min.png' width='100' height='100'>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</article>\n" );
+	fprintf(yyout, "<figure style='background-color: #007bff;'></figure>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+			
+	fprintf(yyout, "<div class='col-sm-4'>\n" );
+	fprintf(yyout, "<div id='card' class='weater'>\n" );
+	fprintf(yyout, "<div class='city-selected' style='background-color: #17a2b8;'>\n" );
+	fprintf(yyout, "<article>\n" );
+	fprintf(yyout, "<div class='info'>\n" );
+	fprintf(yyout, "<div><h2> Sen. Térmica</h2></div>\n" );
+	fprintf(yyout, "<div><h3>Máxima: %i ºC</h3></div>\n", sensaciones.maxima);
+	fprintf(yyout, "<div><h3>Mínima: %i ºC</h3></div>\n", sensaciones.minima);
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "<div class='icon'>\n" );
+    fprintf(yyout, "<img src='icon/sent_max_min.png' width='100' height='100'>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</article>\n" );
+	fprintf(yyout, "<figure style='background-color: #17a2b8;'></figure>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+
+	fprintf(yyout, "</br>\n" );
+
+    fprintf(yyout, "<div class='container'>\n" );
+	fprintf(yyout, "<div class='row'>\n" );
+	fprintf(yyout, "<div class='col-sm-4'>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "<div class='col-sm-4'>\n" );
+	fprintf(yyout, "<div id='card' class='weater'>\n" );
+	fprintf(yyout, "<div class='city-selected' style='background-color: #fd7e14;'>\n" );
+	fprintf(yyout, "<article>\n" );
+	fprintf(yyout, "<div class='info'>\n" );
+	fprintf(yyout, "<div><h2> Temperaturas</h2></div>\n" );
+	fprintf(yyout, "<div><h3><img src='icon/max_temp.png' width='40' height='40'> %i ºC</h3></div>\n", temperaturas.maxima );
+	fprintf(yyout, "<div><h3><img src='icon/min_temp.png' width='40' height='40'> %i ºC</h3></div>\n", temperaturas.minima );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</article>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</section>\n" );
+	fprintf(yyout, "<section id='contact'>\n" );
+	fprintf(yyout, "<div class='container'>\n" );
+	fprintf(yyout, "<div class='row'>\n" );
+	fprintf(yyout, "<div class='col-lg-8 mx-auto'>\n" );
+	fprintf(yyout, "<h2>Realizado por:</h2>\n" );
+	fprintf(yyout, "<p class='lead'>Alejandro Manuel Hérnandez Recio y Francisco Miguel Toledo Aguilera</p>\n" );
+	fprintf(yyout, "<p class='lead'><strong>Asignatura:</strong> Modelos de Computación</p>\n" );
+	fprintf(yyout, "<p class='lead'><strong>Profesor:</strong> Salvador García López</p>\n" );
+	fprintf(yyout, "<p class='lead'><strong>Curso:</strong> 2017/2018</p>\n" );
+	fprintf(yyout, "<p class='lead'><strong>GitHub:</strong> <a href='https://github.com/alexhzr/AEMET_Parser' target='_blanck'>enlace del proyecto</a></p>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</section>\n" );
+	fprintf(yyout, "<footer class='py-5 bg-dark'>\n" );
+	fprintf(yyout, "<div class='container'>\n" );
+	fprintf(yyout, "<p class='m-0 text-center text-white'>Copyright &copy; Fº Miguel Toledo - A. Manuel Hérnandez | 2017</p>\n" );
+	fprintf(yyout, "</div>\n" );
+	fprintf(yyout, "</footer>\n" );
+	fprintf(yyout, "<script src='html/vendor/jquery/jquery.min.js'></script>\n" );
+	fprintf(yyout, "<script src='html/vendor/bootstrap/js/bootstrap.bundle.min.js'></script>\n" );
+	fprintf(yyout, "<script src='html/vendor/jquery-easing/jquery.easing.min.js'></script>\n" );
+	fprintf(yyout, "<script src='html/js/scrolling-nav.js'></script>\n" );
+	fprintf(yyout, "</body>\n" );
+	fprintf(yyout, "</html>\n" );
+	fclose(yyin);
+	fclose(yyout);
 	return 0;
 }
 
 void inicializar() {
-	desc_estados_cielo.insert(make_pair("11", "Despejado"));
-	desc_estados_cielo.insert(make_pair("12", "Poco Nubloso"));
-	desc_estados_cielo.insert(make_pair("13", "Intervalos Nublosos"));
-	desc_estados_cielo.insert(make_pair("14", "Nubloso"));
-	desc_estados_cielo.insert(make_pair("15", "Muy Nubloso"));
-	desc_estados_cielo.insert(make_pair("16", "Cubierto"));
-	desc_estados_cielo.insert(make_pair("17", "Nubes Altas"));
-	desc_estados_cielo.insert(make_pair("18", "Intervalos nublosos con lluvia"));
-	desc_estados_cielo.insert(make_pair("19", "Nubloso con lluvia"));
-	desc_estados_cielo.insert(make_pair("20", "Muy nubloso con lluvia"));
-	desc_estados_cielo.insert(make_pair("21", "Cubierto con lluvia"));
-	desc_estados_cielo.insert(make_pair("22", "Intervalos nublosos con nieve"));
-	desc_estados_cielo.insert(make_pair("23", "Nubloso con nieve"));
-	desc_estados_cielo.insert(make_pair("24", "Muy nubloso con nieve"));
-	desc_estados_cielo.insert(make_pair("25", "Chubascos"));
-	desc_estados_cielo.insert(make_pair("26", "Tormenta"));
-	desc_estados_cielo.insert(make_pair("27", "Granizo"));
-	desc_estados_cielo.insert(make_pair("28", "Bruma"));
-	desc_estados_cielo.insert(make_pair("29", "Niebla"));
-	desc_estados_cielo.insert(make_pair("30", "Calma"));
+	desc_estados_cielo.insert(make_pair(0, "Despejado"));
+	desc_estados_cielo.insert(make_pair(11, "Despejado"));
+	desc_estados_cielo.insert(make_pair(12, "Poco-Nubloso"));
+	desc_estados_cielo.insert(make_pair(13, "Intervalos-Nublosos"));
+	desc_estados_cielo.insert(make_pair(14, "Nubloso"));
+	desc_estados_cielo.insert(make_pair(15, "Muy-Nubloso"));
+	desc_estados_cielo.insert(make_pair(16, "Cubierto"));
+	desc_estados_cielo.insert(make_pair(17, "Nubes-Altas"));
+	desc_estados_cielo.insert(make_pair(18, "Intervalos-nublosos-con-lluvia"));
+	desc_estados_cielo.insert(make_pair(19, "Nubloso-con-lluvia"));
+	desc_estados_cielo.insert(make_pair(20, "Muy-nubloso-con-lluvia"));
+	desc_estados_cielo.insert(make_pair(21, "Cubierto-con-lluvia"));
+	desc_estados_cielo.insert(make_pair(22, "Intervalos-nublosos-con-nieve"));
+	desc_estados_cielo.insert(make_pair(23, "Nubloso-con-nieve"));
+	desc_estados_cielo.insert(make_pair(24, "Muy-nubloso-con-nieve"));
+	desc_estados_cielo.insert(make_pair(25, "Chubascos"));
+	desc_estados_cielo.insert(make_pair(26, "Tormenta"));
+	desc_estados_cielo.insert(make_pair(27, "Granizo"));
+	desc_estados_cielo.insert(make_pair(28, "Bruma"));
+	desc_estados_cielo.insert(make_pair(29, "Niebla"));
+	desc_estados_cielo.insert(make_pair(30, "Calma"));
+
+	desc_direcc_viento.insert(make_pair("C", "calmado"));
+	desc_direcc_viento.insert(make_pair("S", "sur"));
+	desc_direcc_viento.insert(make_pair("N", "norte"));
+	desc_direcc_viento.insert(make_pair("E", "este"));
+	desc_direcc_viento.insert(make_pair("O", "oeste"));
+	desc_direcc_viento.insert(make_pair("NE", "n_este"));
+	desc_direcc_viento.insert(make_pair("SE", "s_este"));
+	desc_direcc_viento.insert(make_pair("SO", "s_oeste"));
+	desc_direcc_viento.insert(make_pair("NO", "n_oeste"));
 }
 
 void imprimirListado(string c_prov) {
